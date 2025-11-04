@@ -15,7 +15,7 @@ pipeline {
         DOCKER_USER = "tobaalo"
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}".toLowerCase()
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
-        JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        JENKINS_API_TOKEN = credentials("dockerhub")
         DOCKER_CREDENTIALS_ID = "dockerhub" 
     }
 
