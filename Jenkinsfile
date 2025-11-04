@@ -48,8 +48,9 @@ pipeline {
                     }
                 }
             }
+        }
 
-            stage('Quality Gate') {
+        stage('Quality Gate') {
             steps {
                 script {
                     // Wait for the SonarQube Quality Gate result
@@ -59,7 +60,6 @@ pipeline {
                     }
                 }
             }
-        }
         }
     }
 }
