@@ -48,6 +48,18 @@ pipeline {
                     }
                 }
             }
+
+            stage('Quality Gate') {
+            steps {
+                script {
+                    // Wait for the SonarQube Quality Gate result
+                    def qg = waitForQualityGate()
+                    if (qg.status != 'OK') {
+                        error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
+                }
+            }
+        }
         }
     }
 }
