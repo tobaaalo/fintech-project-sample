@@ -20,14 +20,15 @@ pipeline {
 
         stage("Build Application") {
             steps {
-                sh "mvn clean package"
+                sh "npm install"
+                sh "npm run build"
             }
         }
-
-        stage("Test Application") {
-            steps {
-                sh "mvn test"
+        
+            stage("Test Application") {
+                steps {
+                    sh "npm test"
+                }
             }
-        }
     }
 }
