@@ -10,6 +10,13 @@ pipeline {
     environment {
         SONARQUBE_SERVER = 'SonarQubeServer'
         SONAR_PROJECT_KEY = 'fintech-project'
+        APP_NAME = "fintech-project-pipeline"
+        RELEASE = "1.0.0"
+        DOCKER_USER = "tobaalo"
+        IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}".toLowerCase()
+        IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
+        JENKINS_API_TOKEN = credentials("JENKINS_API_TOKEN")
+        DOCKER_CREDENTIALS_ID = "dockerhub" 
     }
 
     stages {
@@ -42,7 +49,6 @@ pipeline {
             steps {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     script {
-                        // Use the Jenkins-installed SonarQube Scanner
                         def scannerHome = tool name: 'SonarQube-Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
                         sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=. -Dsonar.exclusions=node_modules/**,dist/**"
                     }
@@ -53,10 +59,21 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    // Wait for the SonarQube Quality Gate result
-                    def qg = waitForQualityGate()
+                    def qg = waitForQualityGate() // Make sure webhook is configured!
                     if (qg.status != 'OK') {
                         error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                    }
+                }
+            }
+        }
+
+        stage("Build & Push Docker Image") {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_CREDENTIALS_ID}") {
+                        def docker_image = docker.build("${IMAGE_NAME}")
+                        docker_image.push("${IMAGE_TAG}")
+                        docker_image.push('latest')
                     }
                 }
             }
