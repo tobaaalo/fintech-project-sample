@@ -1,24 +1,29 @@
-# Step 1: Use Node.js base image
-FROM node:20
-
-# Step 2: Set working directory
+# Stage 1: Build the app
+FROM node:20-alpine AS build
 WORKDIR /app
 
-# Step 3: Upgrade npm globally
-RUN npm install -g npm@11.6.2
-
-# Step 4: Copy package.json and package-lock.json
+# Copy package files and install dependencies
 COPY package*.json ./
-
-# Step 5: Install dependencies
 RUN npm install
 
-# Step 6: Copy the rest of the project
+# Copy the rest of the project
 COPY . .
 
-# Step 7: Build the app
+# Build the production app
 RUN npm run build
 
-# Step 8: Expose port (if needed) and run
+# Stage 2: Production image
+FROM node:20-alpine
+WORKDIR /app
+
+# Install 'serve' to serve static files
+RUN npm install -g serve
+
+# Copy build output from previous stage
+COPY --from=build /app/dist ./dist
+
+# Expose port
 EXPOSE 3000
-CMD ["npm", "start"]
+
+# Serve the app
+CMD ["serve", "-s", "dist", "-l", "3000"]
