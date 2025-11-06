@@ -1,4 +1,3 @@
-# k8s/deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,7 +13,7 @@ spec:
         app: fintech-app
     spec:
       containers:
-      - name: fintech-app
-        image: tobaalo/fintech-project-pipeline:latest
-        ports:
-        - containerPort: 80
+        - name: fintech-app
+          image: tobaalo/fintech-project-pipeline:latest 
+          ports:
+            - containerPort: 3000
