@@ -16,7 +16,7 @@ pipeline {
         IMAGE_NAME = "${DOCKER_USER}/${APP_NAME}".toLowerCase()
         IMAGE_TAG = "${RELEASE}-${BUILD_NUMBER}"
         JENKINS_API_TOKEN = credentials("dockerhub")
-        DOCKER_CREDENTIALS_ID = "dockerhub" 
+        DOCKER_CREDENTIALS_ID = "dockerhub"
     }
 
     stages {
@@ -59,7 +59,7 @@ pipeline {
         stage('Quality Gate') {
             steps {
                 script {
-                    def qg = waitForQualityGate() // Make sure webhook is configured!
+                    def qg = waitForQualityGate()
                     if (qg.status != 'OK') {
                         error "Pipeline aborted due to quality gate failure: ${qg.status}"
                     }
@@ -75,6 +75,23 @@ pipeline {
                         docker_image.push("${IMAGE_TAG}")
                         docker_image.push('latest')
                     }
+                }
+            }
+        }
+
+        stage("Trivy Scan") {
+            steps {
+                script {
+                    sh "docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy image ${IMAGE_NAME}:latest --no-progress --scanners vuln --exit-code 0 --severity HIGH,CRITICAL --format table"
+                }
+            }
+        }
+
+        stage('Cleanup Artifacts') {
+            steps {
+                script {
+                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                    sh "docker rmi ${IMAGE_NAME}:latest || true"
                 }
             }
         }
