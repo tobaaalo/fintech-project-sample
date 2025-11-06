@@ -1,0 +1,12 @@
+# k8s/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: fintech-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: fintech-app
+  ports:
+    - port: 80
+      targetPort: 80
