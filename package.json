@@ -9,6 +9,7 @@
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
       "test": "echo \"No test specified\" && exit 0",
     "preview": "vite preview"
+      "start": "serve -s dist"
   },
   "dependencies": {
     "@emotion/react": "^11.13.0",
