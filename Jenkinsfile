@@ -50,7 +50,13 @@ pipeline {
                 withSonarQubeEnv("${SONARQUBE_SERVER}") {
                     script {
                         def scannerHome = tool name: 'SonarQube-Scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=. -Dsonar.exclusions=node_modules/**,dist/**"
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                            -Dsonar.sources=. \
+                            -Dsonar.exclusions=node_modules/**,dist/** \
+                            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+                        """
                     }
                 }
             }
